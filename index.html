@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Garbage Monitoring System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            overflow: auto;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #333, #111);
+            box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.7);
+            width: 90%;
+            max-width: 1200px;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 10px;
+            background-color: green;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .garbage-level, .location {
+            font-size: 22px;
+            margin-top: 20px;
+        }
+
+        .details {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #ffcc00;
+        }
+
+        .control-button {
+            padding: 15px 20px;
+            border: none;
+            background-color: red;
+            color: white;
+            font-size: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 120px;
+            height: 120px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            transition: transform 0.2s ease;
+        }
+
+        .control-button:hover {
+            transform: scale(1.1);
+        }
+
+        .battery-container {
+            width: 80px;
+            height: 250px;
+            border: 4px solid #fff;
+            border-radius: 20px;
+            position: relative;
+            background-color: #333;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .battery-lid {
+            width: 60px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .battery-level {
+            background-color: #00ff00;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: height 0.5s ease-in-out;
+        }
+
+        #location {
+            font-size: 18px;
+            color: #ffcc00;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">SMART GARBAGE MONITORING SYSTEM USING IOT</div>
+        <div id="status" class="status">Garbage Bin is empty!</div>
+
+        <!-- Dustbin Simulation -->
+        <div class="battery-container">
+            <div class="battery-lid"></div>
+            <div id="level-indicator" class="battery-level" style="height: 0%;"></div>
+        </div>
+        
+        <div class="garbage-level">GARBAGE BIN LEVEL: <span id="garbage-level-value">0%</span></div>
+        <div class="location">GPS LOCATION: <span id="location-value">Fetching...</span></div>
+        <button class="control-button" onclick="openDustbin()">Open Dustbin</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "smartwastemanagement-b31bf.firebaseapp.com",
+            databaseURL: "https://smartwastemanagement-b31bf-default-rtdb.firebaseio.com",
+            projectId: "smartwastemanagement-b31bf",
+            storageBucket: "smartwastemanagement-b31bf.appspot.com",
+            messagingSenderId: "355500925684",
+            appId: "1:355500925684:web:da885303abb59aa8ccb4a1",
+            measurementId: "G-Z75Z2NX36G"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const garbageLevelRef = database.ref('garbage-level');
+        const locationRef = database.ref('location');
+
+        // Listen for garbage level updates
+        garbageLevelRef.on('value', (snapshot) => {
+            const level = snapshot.val();
+            document.getElementById('garbage-level-value').textContent = `${level}%`;
+
+            const status = document.getElementById('status');
+            const levelIndicator = document.getElementById('level-indicator');
+            
+            // Update the visual level of garbage in the dustbin simulation
+            levelIndicator.style.height = `${level}%`;
+
+            if (level >= 75) {
+                status.textContent = "Garbage Bin is almost full!";
+                status.style.backgroundColor = 'red';
+            } else if (level === 100) {
+                status.textContent = "Garbage Bin is full!";
+                status.style.backgroundColor = 'red';
+            } else {
+                status.textContent = "Garbage Bin is empty!";
+                status.style.backgroundColor = 'green';
+            }
+        });
+
+        // Listen for location updates
+        locationRef.on('value', (snapshot) => {
+            const locationData = snapshot.val();
+            document.getElementById('location-value').textContent = locationData;
+        });
+
+        // Function to open the dustbin
+        function openDustbin() {
+            alert("The dustbin lid has been opened.");
+        }
+    </script>
+</body>
+</html>
